@@ -78,3 +78,15 @@ def delete_file_paths(file_paths: Optional[Set[Path]]):
         except PermissionError as e:
             cmd_nouchg(file_path)
             remove(file_path)
+
+
+def extract_image_seq_num(file_path: Path):
+    file_stem = file_path.stem
+    seq_num = file_stem.split('_')[-1]
+    try:
+        seq_num = int(seq_num)
+    except Exception as e:
+        print(e)
+        return float('-inf')
+
+    return seq_num
