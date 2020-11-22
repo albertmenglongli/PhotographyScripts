@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import shutil
+import sys
 from pathlib import Path
 from typing import Optional, Set
-import argparse
-import sys
+
+from tqdm import tqdm
 
 from utils import convert_cr2_to_jpg
 
@@ -26,6 +28,36 @@ def analyze_files_to_convert(file_paths: Optional[Set[Path]]):
     return files_to_convert
 
 
+def entry(dir_path: Path, output_dir: Path, force=True):
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for root, sub_dirs, file_names in os.walk(dir_path):
+        file_paths = set([Path(root) / file for file in file_names])
+        # ignore files starts with '._'
+        file_paths = set(filter(lambda fp: not fp.name.startswith('._'), file_paths))
+        file_to_copy_directly = set(filter(lambda fp: fp.name.endswith('.JPG'), file_paths))
+        file_paths_to_convert = analyze_files_to_convert(file_paths)
+        total = len(file_to_copy_directly) + len(file_paths_to_convert)
+        with tqdm(total=total) as pbar:
+            for fp in file_to_copy_directly:
+                if not force and (output_dir / fp.name).exists():
+                    pass
+                else:
+                    shutil.copy(fp, output_dir)
+                pbar.update(1)
+                
+            file_paths_converted = set()
+            for fp in file_paths_to_convert:
+                if not force and (output_dir / (fp.stem + '.JPG')).exists():
+                    pass
+                else:
+                    file_paths_converted |= convert_cr2_to_jpg(fp, output_dir)
+                pbar.update(1)
+
+        print(f'{len(file_to_copy_directly) + len(file_paths_converted)} extracted! '
+              f'({len(file_to_copy_directly)} files copied directly,'
+              f' {len(file_paths_converted)} files converted)')
+
+
 def parse_args():
     description = ("Extract JPG to another directory, convert to JPG for CR2 without preview")
 
@@ -35,21 +67,6 @@ def parse_args():
 
     args = parser.parse_args()
     return args
-
-
-def entry(dir_path: Path, output_dir: Path):
-    output_dir.mkdir(parents=True, exist_ok=True)
-    for root, sub_dirs, file_names in os.walk(dir_path):
-        file_paths = set([Path(root) / file for file in file_names])
-
-        file_to_copy_directly = list(filter(lambda fp: fp.name.endswith('.JPG'), file_paths))
-        for fp in file_to_copy_directly:
-            shutil.copy(fp, output_dir)
-        file_paths_to_convert = analyze_files_to_convert(file_paths)
-        file_paths_converted = convert_cr2_to_jpg(file_paths_to_convert, output_dir)
-        print(f'{len(file_to_copy_directly) + len(file_paths_converted)} extracted! '
-              f'({len(file_to_copy_directly)} files copied directly,'
-              f' {len(file_paths_converted)} files converted)')
 
 
 if __name__ == '__main__':

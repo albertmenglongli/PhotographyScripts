@@ -16,25 +16,28 @@ def convert_cr2_to_jpg(file_paths: Union[Set[Path], Path], output_dir: Optional[
     for file_path in file_paths:
         output_dir = output_dir or file_path.parent
         new_file_path = output_dir / (file_path.stem + '.JPG')
-
-        with rawpy.imread(str(file_path)) as raw:
-            try:
-                thumb = raw.extract_thumb()
-            except rawpy.LibRawNoThumbnailError:
-                print('no thumbnail found')
-                continue
-            except rawpy.LibRawUnsupportedThumbnailError:
-                print('unsupported thumbnail')
-                continue
-            else:
-                if thumb.format == rawpy.ThumbFormat.JPEG:
-                    # thumb.data is already in JPEG format, save as-is
-                    with open(str(new_file_path), 'wb') as f:
-                        f.write(thumb.data)
-                elif thumb.format == rawpy.ThumbFormat.BITMAP:
-                    # thumb.data is an RGB numpy array, convert with imageio
-                    imageio.imsave(str(new_file_path), thumb.data)
-                file_paths_converted.add(file_path)
+        try:
+            with rawpy.imread(str(file_path)) as raw:
+                try:
+                    thumb = raw.extract_thumb()
+                except rawpy.LibRawNoThumbnailError:
+                    print('no thumbnail found')
+                    continue
+                except rawpy.LibRawUnsupportedThumbnailError:
+                    print('unsupported thumbnail')
+                    continue
+                else:
+                    if thumb.format == rawpy.ThumbFormat.JPEG:
+                        # thumb.data is already in JPEG format, save as-is
+                        with open(str(new_file_path), 'wb') as f:
+                            f.write(thumb.data)
+                    elif thumb.format == rawpy.ThumbFormat.BITMAP:
+                        # thumb.data is an RGB numpy array, convert with imageio
+                        imageio.imsave(str(new_file_path), thumb.data)
+                    file_paths_converted.add(file_path)
+        except Exception as e:
+            print(str(e), file_path)
+            continue
     return file_paths_converted
 
 
