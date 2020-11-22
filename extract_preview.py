@@ -28,7 +28,7 @@ def analyze_files_to_convert(file_paths: Optional[Set[Path]]):
     return files_to_convert
 
 
-def entry(dir_path: Path, output_dir: Path, force=True):
+def entry(dir_path: Path, output_dir: Path, force=False):
     output_dir.mkdir(parents=True, exist_ok=True)
     for root, sub_dirs, file_names in os.walk(dir_path):
         file_paths = set([Path(root) / file for file in file_names])
@@ -44,7 +44,7 @@ def entry(dir_path: Path, output_dir: Path, force=True):
                 else:
                     shutil.copy(fp, output_dir)
                 pbar.update(1)
-                
+
             file_paths_converted = set()
             for fp in file_paths_to_convert:
                 if not force and (output_dir / (fp.stem + '.JPG')).exists():
