@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 import argparse
 
-SELECTED_SUFFIXES = {'.JPG', '.jpeg'}
+SELECTED_SUFFIXES = {'.JPG', '.jpeg', '.jpg'}
 SRC_SUFFIXES = {'.CR2', '.CR3', '.ARW'}
 
 
