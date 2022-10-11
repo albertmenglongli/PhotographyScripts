@@ -8,7 +8,7 @@ from pythonic_toolbox.utils.list_utils import sort_with_custom_orders
 
 
 class Item:
-    def __init__(self, name: str, weight: float = 1, exclusive_items: List[Union[str]] = None):
+    def __init__(self, name: str, weight: float = 1, exclusive_items: List[Union[str, 'Item']] = None):
         self.name = name
         self.weight = weight
         if exclusive_items is None:
