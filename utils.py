@@ -1,3 +1,4 @@
+from collections import deque
 import os
 import shutil
 import subprocess
@@ -82,11 +83,14 @@ def delete_file_paths(file_paths: Optional[Set[Path]]):
 
 def extract_image_seq_num(file_path: Path):
     file_stem = file_path.stem
-    seq_num = file_stem.split('_')[-1]
-    try:
-        seq_num = int(seq_num)
-    except Exception as e:
-        print(e)
-        return float('-inf')
 
+    seq_num_chars = deque()
+    for c in file_stem[::-1]:
+        if c.isdigit():
+            seq_num_chars.appendleft(c)
+        else:
+            break
+
+    seq_num = ''.join(seq_num_chars)
+    seq_num = int(seq_num)
     return seq_num
