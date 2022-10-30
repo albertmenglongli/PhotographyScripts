@@ -181,7 +181,7 @@ def split_to_groups(dislike_pairs):
     return group_list
 
 
-def photography_stypes_generator(given_key_words=None, k=10):
+def photography_styles_generator(given_key_words=None, k=10):
     global dimensions
     given_key_words = given_key_words or []
 
@@ -219,6 +219,6 @@ def photography_stypes_generator(given_key_words=None, k=10):
 
 
 if __name__ == '__main__':
-    for res in photography_stypes_generator(k=5):
+    for res in photography_styles_generator(k=5):
         print(res)
 
