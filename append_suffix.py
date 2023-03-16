@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import re
-import argparse
+from pathlib import Path
 
 
 def rename_files(folder_path, suffix):
@@ -9,8 +10,11 @@ def rename_files(folder_path, suffix):
         for filename in filenames:
             if suffix not in filename and filename.endswith('.jpg'):
                 new_filename = re.sub(r'\.(.*)$', rf'-{suffix}.\1', filename)
-                os.rename(os.path.join(dirpath, filename), os.path.join(dirpath, new_filename))
-                print(f'{os.path.join(dirpath, filename)} -> {new_filename}')
+                if not Path(os.path.join(dirpath, new_filename)).exists():
+                    os.rename(os.path.join(dirpath, filename), os.path.join(dirpath, new_filename))
+                    print(f'{os.path.join(dirpath, filename)} -> {new_filename}')
+                else:
+                    print(f'Failed to rename {filename} -> {new_filename}, {new_filename} already exists')
 
 
 if __name__ == '__main__':
