@@ -3,7 +3,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Optional, Set, Union
+from typing import Optional, Set, Union, List
 
 import imageio
 import rawpy  # "brew install libraw" required in MacOS
@@ -94,3 +94,23 @@ def extract_image_seq_num(file_path: Path):
     seq_num = ''.join(seq_num_chars)
     seq_num = int(seq_num)
     return seq_num
+
+
+def parse_input_paths(input_paths, supported_image_formats={'.jpg', '.png'}) -> List[Path]:
+    # check if input_paths is a directory or not
+    if isinstance(input_paths, str) or isinstance(input_paths, Path):
+        if os.path.isdir(input_paths):
+            input_paths = [Path(input_paths) / image_name for image_name in os.listdir(input_paths)]
+            input_paths = [input_path for input_path in input_paths if
+                           input_path.suffix.endswith(tuple(supported_image_formats))]
+            input_paths = [input_path for input_path in input_paths if
+                           input_path.is_file() and not input_path.stem.startswith('.')]
+        else:
+            if str(input_paths).endswith(tuple(supported_image_formats)):
+                input_paths = [Path(input_paths)]
+            else:
+                input_paths = []
+    input_paths = [Path(input_path) for input_path in input_paths]
+    if not input_paths:
+        raise ValueError('input_paths is empty')
+    return input_paths
